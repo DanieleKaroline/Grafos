@@ -2,12 +2,11 @@
 #include <stdlib.h>
 #include "graph.h"
 
-typedef int bool;
-typedef int Dest;
+typedef int Viz;
 
 typedef struct lista{
     int vert;
-    Dest dest;
+    Viz viz;
     struct lista *prox;
 } Lista;
 
@@ -37,7 +36,9 @@ Grafo *GRAFOconstroi(int num_vertices){
 Lista *LISTAconstroi(int v, int d){
     Lista *aux = (Lista*)malloc(sizeof(Lista));
     aux->vert = v;
-    aux->dest = d;
+    aux->viz = d;
+    
+    
     aux->prox = NULL;
     return aux;
 }
@@ -54,13 +55,13 @@ void GRAFOinsere_aresta(Grafo *g, Aresta e){
     g->num_a++;
 }
 void GRAFOimprime(Grafo *g){
-    printf("V: %d e A: %d \n",g->num_vert, g->num_a);
+   printf("V: %d e A: %d \n",g->num_vert, g->num_a);
     for(int i = 0; i < g->num_vert; i++){
         printf("%d: ", i);
         Lista *ad = g->adj[i].head;
         while (ad)
         {
-            printf("%d:%d", ad->vert, ad->dest);
+            printf("%d ", ad->viz);
             ad = ad->prox;
         }
         printf("\n");
