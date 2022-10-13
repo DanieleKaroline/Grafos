@@ -2,68 +2,109 @@
 #include <stdlib.h>
 #include "graph.h"
 
-typedef int Viz;
+struct elemLista {
+    int viz;
+    struct elemLista *prox;
+};
+typedef struct elemLista ElemLista;
 
-typedef struct lista{
-    int vert;
-    Viz viz;
-    struct lista *prox;
-} Lista;
-
-typedef struct vertice{
-    Lista *head; //inicio da lista head (vertice): v0 v1 v2
-} Vertice;
-
-typedef struct grafo{
-    int num_vert;
+struct grafo{
+    int num_v;
     int num_a;
-    Vertice *adj; //ponteiro para o arranjo/nó
-} Grafo;
+    ElemLista **lista_adj;
+};
 
-Grafo *GRAFOconstroi(int num_vertices){
-    //reserva espaco da estrutura head para a quantidade de vertices
-    Grafo *g = (Grafo *)malloc(sizeof(Grafo));
-    g->num_vert = num_vertices;
+typedef struct grafo Grafo;
+
+
+
+
+Grafo *GRAFOconstroi(int num_v){
+    Grafo *g;
+
+    g = malloc(sizeof(*g));
+
+    g->num_v = num_v;
     g->num_a = 0;
-    g->adj = (Vertice*)malloc(num_vertices*sizeof(Vertice));
 
-    for(int i = 0; i < num_vertices; i++){
-        g->adj[i].head = NULL;
+    g->lista_adj = malloc(num_v * sizeof(*(g->lista_adj)));
+
+    for (int i = 0; i < num_v; i++)
+    {
+        g->lista_adj[i] = NULL;
     }
+
     return g;
 }
 
-Lista *LISTAconstroi(int v, int d){
-    Lista *aux = (Lista*)malloc(sizeof(Lista));
-    aux->vert = v;
-    aux->viz = d;
-    
-    
-    aux->prox = NULL;
-    return aux;
+
+
+ElemLista* NOconstroi(int v)
+{
+    ElemLista* no = (struct ElemLista *)malloc(sizeof(no));
+    no->viz = v;    
+    no->prox = NULL;
+    return no;
 }
+
+
+
 void GRAFOinsere_aresta(Grafo *g, Aresta e){
-    if(e.v1 < 0 || (e.v1 >= g->num_vert)){
+    if(e.v1 != e.v2){
+        ElemLista* no = NOconstroi(e.v2);
+        no->prox = g->lista_adj[e.v1];
+        g->lista_adj[e.v1] = no;
+ 
+        no = NOconstroi(e.v1);
+        no->prox = g->lista_adj[e.v2];
+        g->lista_adj[e.v2] = no;
+    }
+    else{
+        printf("Lacos nao sao permitidos!\n");
         return;
     }
-    if(e.v2 < 0 || (e.v2 >= g->num_vert)){
-        return;
-    }
-    Lista *new = LISTAconstroi(e.v1, e.v2);
-    new->prox = g->adj[e.v1].head;
-    g->adj[e.v1].head = new;
-    g->num_a++;
+   g->num_a++;
 }
+
+
+
+int GRAFOnum_arestas(Grafo *g){
+    return g->num_a;
+}
+
+
+
+
+void GRAFOremove_aresta(Grafo *g, Aresta e){
+    for (int i = 0; i < g->num_v; i++)
+    {
+        free(g->lista_adj[i]);
+    }
+    free(g->lista_adj);
+    free(g);
+}
+
+
+
+int GRAFOgrau_maximo(Grafo *g){
+
+}
+
+
+
 void GRAFOimprime(Grafo *g){
-   printf("V: %d e A: %d \n",g->num_vert, g->num_a);
-    for(int i = 0; i < g->num_vert; i++){
-        printf("%d: ", i);
-        Lista *ad = g->adj[i].head;
-        while (ad)
+   int v;
+   printf("Numero de arestas: %d Numero de Vertices: %d\n", g->num_a, g->num_v);
+    for (v = 0; v < g->num_v; v++)
+    {
+        ElemLista* temp = g->lista_adj[v];
+        printf("%d: ", v);
+        while (temp)
         {
-            printf("%d ", ad->viz);
-            ad = ad->prox;
+            printf("%d ", temp->viz);
+            temp = temp->prox;
         }
         printf("\n");
     }
 }
+
