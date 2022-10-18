@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "aresta.c"
-#include "grafo.c"
+#include "graph.c"
 
 int main() {
     Grafo *g;
@@ -10,38 +10,33 @@ int main() {
     scanf("%d", &n_v);
     g = GRAFOconstroi(n_v);
 
+    printf("Digite o n de op: ");
     scanf("%d", &n_op);
     i = n_op;
     while(i == n_op){
+        printf("OPERACAO: ");
         scanf("%c", &op);
         switch (op)
         {
             case 'I':
-                scanf("%d %d", &v1, &v2);
+                scanf("%d", &v1);
+                scanf("%d", &v2);
                 GRAFOinsere_aresta(g, ARESTA(v1, v2));
-                
+                GRAFOimprime(g);
+                i--;
             break;
             case 'R':
-               scanf("%d %d", &v1, &v2);
-               GRAFOremove_aresta(g, ARESTA(v1, v2));
-               
+                scanf("%d", &v1);
+                scanf("%d", &v2);
+                GRAFOremove_aresta(g, ARESTA(v1, v2));
+                i--;
             break;
             case 'P':
                 GRAFOimprime(g);
-                
-            break;
-            case 'E':
-                printf("%d\n",GRAFOget_num_aresta(g));
-            break;
-            case 'G':
-                printf("%d\n", GRAFOgrau_maximo(g));
-            break;
-            case 'D':
-                GRAFOdestroi(g);
-            break;
-            i--;
+                i--;
+            default:
+                break;
         }
-    
     }
     return 0;
 }

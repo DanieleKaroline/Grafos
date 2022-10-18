@@ -38,7 +38,7 @@ void GRAFOimprime(Grafo *g){
    printf("Numero de arestas: %d Numero de Vertices: %d\n", g->num_a, g->num_v);
    for (v = 0; v < g->num_v; v++)
     {
-        ElemListaAdj* temp = g->listas_adj[v];
+        ElemListaAdj *temp = g->listas_adj[v];
         printf("%d: ", v);
         while (temp)
         {
@@ -49,13 +49,22 @@ void GRAFOimprime(Grafo *g){
     }
 }
 
+ElemListaAdj* NOconstroi(int v)
+{
+    ElemListaAdj* no = (struct ElemListaAdj *)malloc(sizeof(no));
+    no->v = v;    
+    no->proximo = NULL;
+    return no;
+}
+
+
 void GRAFOinsere_aresta(Grafo *g, Aresta e){
-    if((e.v1 != e.v2) && (e.v1 >= 0) && (e.v2 >= 0)){
-        ElemListaAdj* no = GRAFOconstroi(e.v2);
+    if(e.v1 != e.v2){
+        ElemListaAdj* no = NOconstroi(e.v2);
         no->proximo = g->listas_adj[e.v1];
         g->listas_adj[e.v1] = no;
  
-        no = GRAFOconstroi(e.v1);
+        no = NOconstroi(e.v1);
         no->proximo = g->listas_adj[e.v2];
         g->listas_adj[e.v2] = no;
     }
@@ -64,7 +73,6 @@ void GRAFOinsere_aresta(Grafo *g, Aresta e){
         return;
     }
    g->num_a++;
-   
 }
 
 void GRAFOdestroi(Grafo *g){
@@ -74,9 +82,12 @@ void GRAFOdestroi(Grafo *g){
         free(g->listas_adj[i]->proximo);
         printf("*\n");
     }
+    
     free(g->listas_adj);
     free(g);
+
 }
+
 int GRAFOget_num_aresta(Grafo *g){
     return g->num_a;
 }
@@ -112,8 +123,15 @@ void GRAFOremove_aresta(Grafo *g, Aresta e){
 int GRAFOgrau_maximo(Grafo *g){
     ElemListaAdj *aux;
     int c = 0;
-    for(aux; aux != NULL; aux->proximo){
-        c++;
+    for(int i = 0; i < g->num_v; i++){
+        int a = 0;
+        aux = g->listas_adj[i];
+        while(aux != NULL){
+            a++;
+            aux = aux->proximo;
+        }
+        if(a > c)
+            c = a;
     }
     return c;
 }
