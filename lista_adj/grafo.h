@@ -10,7 +10,7 @@ Grafo *GRAFOconstroi(int N);//ok
 
 void GRAFOinsere_aresta(Grafo *g, Aresta a);//ok
 
-void GRAFOremove_aresta(Grafo *g, Aresta a);
+Grafo *GRAFOremove_aresta(Grafo *g, Aresta a);
 
 int GRAFOget_num_aresta(Grafo *g);//ok
 

@@ -5,30 +5,26 @@
 
 int main() {
     Grafo *g;
-    int i, n_v, n_op, v1, v2;
-    char op;
-    scanf("%d", &n_v);
-    g = GRAFOconstroi(n_v);
 
-    scanf("%d", &n_op);
-    i = n_op;
-    while(i == n_op){
-        scanf("%c", &op);
+    int n_v; 
+    int n_op;
+    int v1, v2;
+
+    scanf("%d %d", &n_v, &n_op);
+    g = GRAFOconstroi(n_v);
+    for(int i = (n_op-1); i >= 0; i--){
+        char op;
+        scanf("%s", &op);
+        
         switch (op)
         {
             case 'I':
                 scanf("%d %d", &v1, &v2);
                 GRAFOinsere_aresta(g, ARESTA(v1, v2));
-                
             break;
             case 'R':
                scanf("%d %d", &v1, &v2);
                GRAFOremove_aresta(g, ARESTA(v1, v2));
-               
-            break;
-            case 'P':
-                GRAFOimprime(g);
-                
             break;
             case 'E':
                 printf("%d\n",GRAFOget_num_aresta(g));
@@ -36,13 +32,18 @@ int main() {
             case 'G':
                 printf("%d\n", GRAFOgrau_maximo(g));
             break;
-            case 'D':
-                GRAFOdestroi(g);
+            case 'P':
+                GRAFOimprime(g);
             break;
-            i--;
+            default:
+             exit(0);
+            break;
         }
-    
+        if(i == 0){
+            exit(0);
+        }
     }
+    
     return 0;
-}
+} 
     

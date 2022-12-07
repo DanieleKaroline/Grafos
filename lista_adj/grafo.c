@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "grafo.h"
 
+
+
 struct elemListaAdj {
     int v;
     struct elemListaAdj *proximo;
@@ -10,10 +12,23 @@ typedef struct elemListaAdj ElemListaAdj;
 
 struct grafo {
     int num_v;
-    int grau;
     int num_a;
+    int gr;
     ElemListaAdj **listas_adj;
 };
+
+
+int edge(Grafo *g, Aresta e)
+{
+	ElemListaAdj *aux = malloc(sizeof(ElemListaAdj));
+	for(aux = g->listas_adj[e.v1]; aux != NULL; aux = aux->proximo)
+	{
+		if(aux->v == e.v2){
+            return 1;
+        }
+	}
+	return 0;
+}
 
 Grafo *GRAFOconstroi(int num_v) {
     Grafo *g;
@@ -22,7 +37,7 @@ Grafo *GRAFOconstroi(int num_v) {
 
     g->num_v = num_v;
     g->num_a = 0;
-    g->grau = 0;
+    g->gr = 0;
 
     g->listas_adj = malloc(num_v * sizeof(*(g->listas_adj)));
 
@@ -33,33 +48,19 @@ Grafo *GRAFOconstroi(int num_v) {
     return g;
 }
 
-void GRAFOimprime(Grafo *g){
-   int v;
-   printf("Numero de arestas: %d Numero de Vertices: %d\n", g->num_a, g->num_v);
-   for (v = 0; v < g->num_v; v++)
-    {
-        ElemListaAdj *temp = g->listas_adj[v];
-        printf("%d: ", v);
-        while (temp)
-        {
-            printf("%d ", temp->v);
-            temp = temp->proximo;
-        }
-        printf("\n");
-    }
-}
-
 ElemListaAdj* NOconstroi(int v)
 {
-    ElemListaAdj* no = (struct ElemListaAdj *)malloc(sizeof(no));
+    ElemListaAdj* no = (ElemListaAdj*)malloc(sizeof(no));
     no->v = v;    
     no->proximo = NULL;
     return no;
 }
 
-
 void GRAFOinsere_aresta(Grafo *g, Aresta e){
-    if(e.v1 != e.v2){
+    if(edge(g, e) || e.v1 == e.v2){
+       return;
+    }
+    else{
         ElemListaAdj* no = NOconstroi(e.v2);
         no->proximo = g->listas_adj[e.v1];
         g->listas_adj[e.v1] = no;
@@ -68,10 +69,7 @@ void GRAFOinsere_aresta(Grafo *g, Aresta e){
         no->proximo = g->listas_adj[e.v2];
         g->listas_adj[e.v2] = no;
     }
-    else{
-        printf("Lacos nao sao permitidos!\n");
-        return;
-    }
+    
    g->num_a++;
 }
 
@@ -80,7 +78,6 @@ void GRAFOdestroi(Grafo *g){
     {
         free(g->listas_adj[i]);
         free(g->listas_adj[i]->proximo);
-        printf("*\n");
     }
     
     free(g->listas_adj);
@@ -96,29 +93,49 @@ int GRAFOget_num_vertice(Grafo *g){
     return g->num_v;
 }
 
-void GRAFOremove_aresta(Grafo *g, Aresta e){
-    ElemListaAdj **k = &g->listas_adj[e.v1];
-    ElemListaAdj **l = &g->listas_adj[e.v2];
-    while (*l != NULL && (*l)->v < e.v2){
-        l = &(*l)->proximo;
+Grafo *GRAFOremove_aresta(Grafo *g, Aresta e){
+    if(edge(g, e) == 0){
+        return;
+    }
+    ElemListaAdj *i = malloc(sizeof(ElemListaAdj));
+	
+    ElemListaAdj *aux = malloc(sizeof(ElemListaAdj));
+	aux = NULL;
+	
+	for(i = g->listas_adj[e.v1]; i != NULL; i = i->proximo)
+	{
+		if(i->v == e.v2)
+		{
+			if(aux != NULL){
+				aux->proximo = i->proximo;
+			}else
+			{
+				g->listas_adj[e.v1] = i->proximo;
+			}
+			free(i);
+			break; //pra não entrar em loop
+		}
+		aux = i;
+	}
 
-        while (*k != NULL && (*k)->v < e.v1){
-            k = &(*k)->proximo;
-        }
-  }
-   
-  if (*k != NULL && (*k)->v == e.v2) {
-        ElemListaAdj* r = *k;
-        *k = (*k)->proximo;
-        free(r);
-  }
-    if (*l != NULL && (*l)->v == e.v1) {
-        ElemListaAdj* r = *l;
-        *l = (*l)->proximo;
-        free(r);
-  }
+	aux = NULL;
+	for(i = g->listas_adj[e.v2]; i != NULL; i = i->proximo)
+	{
+		if(i->v == e.v1)
+		{
+			if(aux != NULL){
+				aux->proximo = i->proximo;
+			}else
+			{
+				g->listas_adj[e.v2] = i->proximo;
+			}
+			free(i);
+			break;
+		}
+		aux = i;
+	}
+	g->num_a -= 1;
 }
-
 
 int GRAFOgrau_maximo(Grafo *g){
     ElemListaAdj *aux;
@@ -133,5 +150,21 @@ int GRAFOgrau_maximo(Grafo *g){
         if(a > c)
             c = a;
     }
+    g->gr = c;
     return c;
+}
+
+void GRAFOimprime(Grafo *g){
+   int v;
+   for (v = 0; v < g->num_v; v++)
+    {
+        ElemListaAdj *temp = g->listas_adj[v];
+        printf("%d: ", v);
+        while (temp)
+        {
+            printf("%d ", temp->v);
+            temp = temp->proximo;
+        }
+        printf("\n");
+    }
 }
