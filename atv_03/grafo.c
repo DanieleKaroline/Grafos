@@ -11,6 +11,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "grafo.h"
+#include "filapri_min.h"
+#include "item.h"
+#define INFINITY 1000000
 
 struct elemListaAdj {
     int v;
@@ -88,7 +91,6 @@ static bool GRAFOtem_aresta(Grafo *g, Aresta e) {
 
 void GRAFOinsere_aresta(Grafo *g, Aresta e) {
     ElemListaAdj *vizinho;
-    ElemListaAdj *p;
 
     if (!GRAFOaresta_valida(g, e)) {
         printf("Erro na operacao GRAFOinsere_aresta: a aresta %d %d eh "
@@ -147,32 +149,6 @@ void GRAFOremove_aresta(Grafo *g, Aresta e) {
         vizinho_anterior = vizinho;
         vizinho = vizinho->proximo;
     }
-
-    if (grafo_tem_aresta) {
-        // Remove o primeiro vertice da aresta da lista de adjacencias do
-        // segundo vertice da aresta
-        vizinho_anterior = NULL;
-        vizinho = g->listas_adj[e.v2];
-        while (vizinho != NULL) {
-            if (vizinho->v == e.v1) {
-                if (vizinho_anterior == NULL) {
-                    g->listas_adj[e.v2] = vizinho->proximo;
-                }
-                else {
-                    vizinho_anterior->proximo = vizinho->proximo;
-                }
-    
-                free(vizinho);
-    
-                break;
-            }
-    
-            vizinho_anterior = vizinho;
-            vizinho = vizinho->proximo;
-        }
-
-        g->num_arestas--;
-    }
 }
 
 static int GRAFOgrau(Grafo *g, int v) {
@@ -218,7 +194,7 @@ void GRAFOimprime(Grafo *g) {
 
         vizinho = g->listas_adj[i];
         while (vizinho != NULL) {
-            printf(" %d", vizinho->v);
+            printf(" %d [%d] ", vizinho->v, vizinho->peso);
     
             vizinho = vizinho->proximo;
         }
@@ -242,4 +218,38 @@ void GRAFOdestroi(Grafo *g) {
     free(g->listas_adj);
 
     free(g);
+}
+
+void GRAFOdij(Grafo *g, int s, int pai, int dp){
+ 
+ for(int i = 0; i < g->num_vertices; i++){
+    pai[i] = -1;
+    dp[i] = INFINITY;
+ }
+ dp[s] = 0;
+
+ FilaPriMin *f = FILAPRI_MINconstroi(g->num_vertices);
+ Item item;
+ for(int i = 0; i < g->num_vertices; i++){
+    FILAPRI_MINinsere(f, ITEM(i, dp[i]));
+ }
+ while (!FILAPRI_MINvazia(f))
+ {
+    item = FILAPRI_MINremove(f);
+
+    if(item.chave != INFINITY){
+        ElemListaAdj *u = g->listas_adj[item.chave];
+        if(dp[u] > item.chave + u->peso){
+            dp[u->v] = item.chave + u->peso;
+            FILAPRI_MINdiminui_chave(g, u->v, dp[u->v]);
+            pai[u->v] = item.ind;
+        }
+    u = u->proximo;
+    }
+ }
+ FILAPRI_MINdestroi(f);
+}
+
+void GRAFOdist(Grafo *g, int s, int dp){
+
 }
